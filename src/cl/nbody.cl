@@ -6,6 +6,7 @@
 
 #define GRAVITATIONAL_FORCE 0.0001
 
+// essentially, CPU code from nbody_cpu translated to GPU code
 __kernel void nbody_calculate_force_global(
     __global float * pxs, __global float * pys,
     __global float *vxs, __global float *vys,
@@ -26,7 +27,37 @@ __kernel void nbody_calculate_force_global(
     float y0 = pys[i];
     float m0 = mxs[i];
 
-    // TODO
+    dvx[i] = 0.0f;
+    dvy[i] = 0.0f;
+    for (unsigned int j = 0; j < N; ++j)
+    {
+        // skip ourselves
+        if (i == j) 
+        {
+            continue;
+        }
+
+        float x1 = pxs[j];
+        float y1 = pys[j];
+        float m1 = mxs[j];
+
+        float dx = x1 - x0;
+        float dy = y1 - y0;
+
+        float dr2 = max(100.f, dx * dx + dy * dy);
+
+        float dr2_inv = 1.f / dr2;
+        float dr_inv = sqrt(dr2_inv);
+
+        float ex = dx * dr_inv;
+        float ey = dy * dr_inv;
+
+        float fx = ex * dr2_inv * GRAVITATIONAL_FORCE;
+        float fy = ey * dr2_inv * GRAVITATIONAL_FORCE;
+
+        dvx[i] += m1 * fx;
+        dvy[i] += m1 * fy;
+    }
 }
 
 __kernel void nbody_integrate(
