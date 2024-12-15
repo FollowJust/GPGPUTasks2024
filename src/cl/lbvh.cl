@@ -196,30 +196,19 @@ int findSplit(__global const morton_t *codes, int i_begin, int i_end, int bit_in
         return -1;
     }
 
-    for (int i = i_begin + 1; i < i_end; ++i) {
-        int a = getBit(codes[i-1], bit_index);
-        int b = getBit(codes[i], bit_index);
-        if (a < b) {
-            return i;
+    int l = i_begin;
+    int r = i_end;
+
+    while (l != r) {
+        int m = (l + r) / 2;
+        if (getBit(codes[m], bit_index)) {
+            r = m;
+        } else {
+            l = m + 1;
         }
     }
 
-    printf("findSplit is not working properly\n");
-    return -1;
-
-    // int l = i_begin;
-    // int r = i_end;
-
-    // while (l != r) {
-    //     int m = (l + r) / 2;
-    //     if (getBit(codes[m], bit_index)) {
-    //         r = m;
-    //     } else {
-    //         l = m + 1;
-    //     }
-    // }
-
-    // return l;
+    return l;
 }
 
 void findRegion(int *i_begin, int *i_end, int *bit_index, __global const morton_t *codes, int N, int i_node)
@@ -251,7 +240,7 @@ void findRegion(int *i_begin, int *i_end, int *bit_index, __global const morton_
     }
 
     if (dir == 0) {
-        printf("8923482374983");
+        printf("dir shouldn't be 0...");
         return;
     }
 
@@ -298,7 +287,7 @@ void findRegion(int *i_begin, int *i_end, int *bit_index, __global const morton_
 
     if (dir > 0) {
         *i_begin = i_node;
-        *i_end = i_node_end + 1;
+        *i_end = i_node_end;
     } else {
         *i_begin = i_node_end;
         *i_end = i_node + 1;
