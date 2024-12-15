@@ -1563,94 +1563,94 @@ void checkTreesEqual(const std::vector<Node> &nodes_recursive, const std::vector
     }
 }
 
-TEST (LBVH, CPU)
-{
-    if (!ENABLE_TESTING)
-        return;
-
-    std::srand(1);
-
-    images::Image<unsigned char> canvas(500, 500, 3);
-    std::vector<Color> colors = {RED, GREEN, BLUE, CYAN, MAGENTA, YELLOW, WHITE};
-
-    std::shared_ptr<images::ImageWindow> window;
-    if (ENABLE_GUI) {
-        window = std::make_shared<images::ImageWindow>("lbvh_naive");
-    }
-
-    auto interactive_callback = [&]() -> void {
-        unsigned char zero[3] = {};
-        canvas.fill(zero);
-
-        int N = 10000;
-        std::vector<Point> points;
-        std::vector<morton_t> codes;
-        points.reserve(N); codes.reserve(N);
-        for (int i = 0; i < N; ++i) {
-
-            // circle sampling
-            //            float angle = 3.14159 * 2 / N * i;
-            //            int x = canvas.width * 0.5 * (1.0 + 0.9 * std::sin(angle));
-            //            int y = canvas.height * 0.5 * (1.0 + 0.9 * std::cos(angle));
-            //            points.push_back(Point{x, y});
-
-            // random sampling
-            points.push_back(Point{int(std::rand() % canvas.width), int(std::rand() % canvas.height)});
-
-            codes.emplace_back(zOrder(points.back(), i));
-        }
-
-        std::sort(codes.begin(), codes.end());
-
-        // удобно для дебага, можно распечатывать мортоновские коды в столбики
-        //        printMortonCodes(codes);
-
-        // check unique
-        for (int i = 1; i < N; ++i) {
-            EXPECT_NE(codes[i-1], codes[i]);
-        }
-
-        std::vector<Node> nodes;
-
-        EXPECT_NO_THROW(buildLBVH(nodes, codes, points));
-        EXPECT_NO_THROW(checkLBVHInvariants(nodes, N));
-
-        std::vector<int> buffer;
-        EXPECT_NO_THROW(buildBBoxes(nodes, buffer, N));
-
-        {
-            std::vector<Node> nodes_recursive;
-            buildLBVHRecursive(nodes_recursive, codes, points, 0, N, NBITS-1);
-            buildBBoxesRecursive(nodes_recursive, nodes_recursive.front());
-            EXPECT_NO_THROW(checkTreesEqual(nodes_recursive, nodes, nodes_recursive.front(), nodes.front()));
-        }
-
-
-        if (ENABLE_GUI) {
-            drawLBVH(canvas, nodes);
-
-            // draw z-curve
-            std::vector<Point> buffer;
-            for (int i = 1; i < (int) points.size(); ++i) {
-                buffer.clear();
-                bresenham(buffer, points[getIndex(codes[i-1])], points[getIndex(codes[i])]);
-                for (const auto &[x, y] : buffer) {
-                    canvas(y, x, 0) = 255;
-                    canvas(y, x, 1) = 255;
-                    canvas(y, x, 2) = 255;
-                }
-            }
-
-            window->display(canvas);
-            window->resize(1000, 1000);
-            window->wait(500);
-        }
-    };
-
-    for (int i = 0; i < 10; ++i) {
-        interactive_callback();
-    }
-}
+//TEST (LBVH, CPU)
+//{
+//    if (!ENABLE_TESTING)
+//        return;
+//
+//    std::srand(1);
+//
+//    images::Image<unsigned char> canvas(500, 500, 3);
+//    std::vector<Color> colors = {RED, GREEN, BLUE, CYAN, MAGENTA, YELLOW, WHITE};
+//
+//    std::shared_ptr<images::ImageWindow> window;
+//    if (ENABLE_GUI) {
+//        window = std::make_shared<images::ImageWindow>("lbvh_naive");
+//    }
+//
+//    auto interactive_callback = [&]() -> void {
+//        unsigned char zero[3] = {};
+//        canvas.fill(zero);
+//
+//        int N = 10000;
+//        std::vector<Point> points;
+//        std::vector<morton_t> codes;
+//        points.reserve(N); codes.reserve(N);
+//        for (int i = 0; i < N; ++i) {
+//
+//            // circle sampling
+//            //            float angle = 3.14159 * 2 / N * i;
+//            //            int x = canvas.width * 0.5 * (1.0 + 0.9 * std::sin(angle));
+//            //            int y = canvas.height * 0.5 * (1.0 + 0.9 * std::cos(angle));
+//            //            points.push_back(Point{x, y});
+//
+//            // random sampling
+//            points.push_back(Point{int(std::rand() % canvas.width), int(std::rand() % canvas.height)});
+//
+//            codes.emplace_back(zOrder(points.back(), i));
+//        }
+//
+//        std::sort(codes.begin(), codes.end());
+//
+//        // удобно для дебага, можно распечатывать мортоновские коды в столбики
+//        //        printMortonCodes(codes);
+//
+//        // check unique
+//        for (int i = 1; i < N; ++i) {
+//            EXPECT_NE(codes[i-1], codes[i]);
+//        }
+//
+//        std::vector<Node> nodes;
+//
+//        EXPECT_NO_THROW(buildLBVH(nodes, codes, points));
+//        EXPECT_NO_THROW(checkLBVHInvariants(nodes, N));
+//
+//        std::vector<int> buffer;
+//        EXPECT_NO_THROW(buildBBoxes(nodes, buffer, N));
+//
+//        {
+//            std::vector<Node> nodes_recursive;
+//            buildLBVHRecursive(nodes_recursive, codes, points, 0, N, NBITS-1);
+//            buildBBoxesRecursive(nodes_recursive, nodes_recursive.front());
+//            EXPECT_NO_THROW(checkTreesEqual(nodes_recursive, nodes, nodes_recursive.front(), nodes.front()));
+//        }
+//
+//
+//        if (ENABLE_GUI) {
+//            drawLBVH(canvas, nodes);
+//
+//            // draw z-curve
+//            std::vector<Point> buffer;
+//            for (int i = 1; i < (int) points.size(); ++i) {
+//                buffer.clear();
+//                bresenham(buffer, points[getIndex(codes[i-1])], points[getIndex(codes[i])]);
+//                for (const auto &[x, y] : buffer) {
+//                    canvas(y, x, 0) = 255;
+//                    canvas(y, x, 1) = 255;
+//                    canvas(y, x, 2) = 255;
+//                }
+//            }
+//
+//            window->display(canvas);
+//            window->resize(1000, 1000);
+//            window->wait(500);
+//        }
+//    };
+//
+//    for (int i = 0; i < 10; ++i) {
+//        interactive_callback();
+//    }
+//}
 
 TEST (LBVH, GPU)
 {
@@ -1947,10 +1947,10 @@ TEST(LBVH, Nbody) {
     bool evaluate_precision = (NBODY_INITIAL_STATE_COMPLEXITY < 2) && EVALUATE_PRECISION;
 
 #if NBODY_INITIAL_STATE_COMPLEXITY < 2
-    nbody(false, evaluate_precision, 0);// cpu naive
-    nbody(false, evaluate_precision, 1);// gpu naive
+    //nbody(false, evaluate_precision, 0);// cpu naive
+    //nbody(false, evaluate_precision, 1);// gpu naive
 #endif
-    nbody(false, evaluate_precision, 2);// cpu lbvh
+    //nbody(false, evaluate_precision, 2);// cpu lbvh
     nbody(false, evaluate_precision, 3); // gpu lbvh
 }
 

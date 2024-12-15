@@ -196,19 +196,30 @@ int findSplit(__global const morton_t *codes, int i_begin, int i_end, int bit_in
         return -1;
     }
 
-    int l = i_begin;
-    int r = i_end;
-
-    while (l != r) {
-        int m = (l + r) / 2;
-        if (getBit(codes[m], bit_index)) {
-            r = m;
-        } else {
-            l = m + 1;
+    for (int i = i_begin + 1; i < i_end; ++i) {
+        int a = getBit(codes[i-1], bit_index);
+        int b = getBit(codes[i], bit_index);
+        if (a < b) {
+            return i;
         }
     }
 
-    return l;
+    printf("findSplit is not working properly\n");
+    return -1;
+
+    // int l = i_begin;
+    // int r = i_end;
+
+    // while (l != r) {
+    //     int m = (l + r) / 2;
+    //     if (getBit(codes[m], bit_index)) {
+    //         r = m;
+    //     } else {
+    //         l = m + 1;
+    //     }
+    // }
+
+    // return l;
 }
 
 void findRegion(int *i_begin, int *i_end, int *bit_index, __global const morton_t *codes, int N, int i_node)
@@ -346,7 +357,7 @@ void initLBVHNode(__global struct Node *nodes, int i_node, __global const morton
         }
 
         if (split < 1) {
-            printf("043204230042342");
+            printf("043204230042342\n");
             return;
         }
 
@@ -358,7 +369,7 @@ void initLBVHNode(__global struct Node *nodes, int i_node, __global const morton
     }
 
     if (!found) {
-        printf("54356549645");
+        printf("Couldn't find split: i_begin: %d\ti_end: %d\tbit_index: %d\tN: %d\n", i_begin, i_end, bit_index, N);
         return;
     }
 }
