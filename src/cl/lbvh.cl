@@ -228,7 +228,7 @@ void findRegion(int *i_begin, int *i_end, int *bit_index, __global const morton_
         const unsigned int curBit = getBit(codes[i_node], i_bit);
         const unsigned int nextBit = getBit(codes[i_node + 1], i_bit);
 
-        const unsigned int mask = ((prevBit << 2u) | (curBit << 1u) | (nextBit)) & 0b111u;
+        const unsigned int mask = (((prevBit << 2u) & 0b100u) | ((curBit << 1u) & 0b10u) | (nextBit & 0b1u)) & 0b111u;
 
         if (mask == 0b011u) {
             dir = 1;
@@ -287,7 +287,7 @@ void findRegion(int *i_begin, int *i_end, int *bit_index, __global const morton_
 
     if (dir > 0) {
         *i_begin = i_node;
-        *i_end = i_node_end;
+        *i_end = i_node_end + 1;
     } else {
         *i_begin = i_node_end;
         *i_end = i_node + 1;
@@ -358,7 +358,7 @@ void initLBVHNode(__global struct Node *nodes, int i_node, __global const morton
     }
 
     if (!found) {
-        printf("Couldn't find split: i_begin: %d\ti_end: %d\tbit_index: %d\tN: %d\n", i_begin, i_end, bit_index, N);
+        printf("Couldn't find split: i_node: %d\ti_begin: %d\ti_end: %d\tbit_index: %d\tN: %d\n", i_node, i_begin, i_end, bit_index, N);
         return;
     }
 }

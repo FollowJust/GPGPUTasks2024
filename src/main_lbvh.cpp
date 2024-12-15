@@ -1023,7 +1023,7 @@ void findRegion(int *i_begin, int *i_end, int *bit_index, const std::vector<mort
         const unsigned int curBit = getBit(codes[i_node], i_bit);
         const unsigned int nextBit = getBit(codes[i_node + 1], i_bit);
 
-        const unsigned int mask = ((prevBit << 2u) | (curBit << 1u) | (nextBit)) & 0b111u;
+        const unsigned int mask = (((prevBit << 2u) & 0b100u) | ((curBit << 1u) & 0b10u) | (nextBit & 0b1u)) & 0b111u;
 
         if (mask == 0b011u) {
             dir = 1;
