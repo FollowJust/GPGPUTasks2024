@@ -16,7 +16,7 @@ int LBVHSize(int N) {
     return N + N-1;
 }
 
-morton_t getBits(morton_t morton_code, int bit_index, int prefix_size)
+morton_t getBits(morton_t morton_code, unsigned int bit_index, unsigned int prefix_size)
 {
     morton_t one = 1;
     return (morton_code >> bit_index) & ((one << prefix_size) - one);
@@ -214,7 +214,7 @@ int findSplit(__global const morton_t *codes, int i_begin, int i_end, int bit_in
 void findRegion(int *i_begin, int *i_end, int *bit_index, __global const morton_t *codes, int N, int i_node)
 {
     if (i_node < 1 || i_node > N - 2) {
-        printf("842384298293482");
+        printf("i_node is either a negative value, a root (0) or is > N - 2");
         return;
     }
 
@@ -260,12 +260,9 @@ void findRegion(int *i_begin, int *i_end, int *bit_index, __global const morton_
     //         break;
     //     }
     // }
-    // if (i_node_end == -1) {
-    //     printf("i_node_end shouldn't be -1");
-    // }
 
     // Мы левая, ищем правую
-    if (dir == 1) {
+    if (dir > 0) {
         int l = i_node;
         int r = N;
         
@@ -294,6 +291,10 @@ void findRegion(int *i_begin, int *i_end, int *bit_index, __global const morton_
         }
 
         i_node_end = r;
+    }
+
+    if (i_node_end == -1) {
+        printf("i_node_end shouldn't be -1");
     }
 
     *bit_index = i_bit - 1;
