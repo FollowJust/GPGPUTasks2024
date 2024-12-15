@@ -253,50 +253,50 @@ void findRegion(int *i_begin, int *i_end, int *bit_index, __global const morton_
     // граница зоны ответственности - момент, когда префикс перестает совпадать
     int i_node_end = -1;
 
-    int linear_i_node_end = -1;
+    // int linear_i_node_end = -1;
     for (int i = i_node; i >= 0 && i < N; i += dir) {
         if (getBits(codes[i], i_bit, K) == pref0) {
-            linear_i_node_end = i;
+            i_node_end = i;
         } else {
             break;
         }
     }
 
-    // Мы левая, ищем правую
-    if (dir > 0) {
-        int l = i_node;
-        int r = N;
+    // // Мы левая, ищем правую
+    // if (dir > 0) {
+    //     int l = i_node;
+    //     int r = N;
         
-        while (r - l > 1) {
-            int m = (l + r) / 2;
-            if (getBits(codes[m], i_bit, K) == pref0) {
-                l = m;
-            } else {
-                r = m;
-            }
-        }
+    //     while (r - l > 1) {
+    //         int m = (l + r) / 2;
+    //         if (getBits(codes[m], i_bit, K) == pref0) {
+    //             l = m;
+    //         } else {
+    //             r = m;
+    //         }
+    //     }
 
-        i_node_end = l;
-    } 
-    else { // Мы правая, ищем левую
-        int l = -1;
-        int r = i_node;
+    //     i_node_end = l;
+    // } 
+    // else { // Мы правая, ищем левую
+    //     int l = -1;
+    //     int r = i_node;
 
-        while (r - l > 1) {
-            int m = (l + r) / 2;
-            if (getBits(codes[m], i_bit, K) == pref0) {
-                r = m;
-            } else {
-                l = m;
-            }
-        }
+    //     while (r - l > 1) {
+    //         int m = (l + r) / 2;
+    //         if (getBits(codes[m], i_bit, K) == pref0) {
+    //             r = m;
+    //         } else {
+    //             l = m;
+    //         }
+    //     }
 
-        i_node_end = r;
-    }
+    //     i_node_end = r;
+    // }
 
-    if (i_node_end != linear_i_node_end) {
-        printf("i_node=%d\tdir=%d\ti_node_end (%d) != linear_i_node_end (%d)", i_node, dir, i_node_end, linear_i_node_end);
-    }
+    // if (i_node_end != linear_i_node_end) {
+    //     printf("i_node=%d\tdir=%d\ti_node_end (%d) != linear_i_node_end (%d)", i_node, dir, i_node_end, linear_i_node_end);
+    // }
 
     if (i_node_end == -1) {
         printf("i_node_end shouldn't be -1");
