@@ -253,46 +253,48 @@ void findRegion(int *i_begin, int *i_end, int *bit_index, __global const morton_
     // граница зоны ответственности - момент, когда префикс перестает совпадать
     int i_node_end = -1;
 
-    for (int i = i_node; i >= 0 && i < N; i += dir) {
-        if (getBits(codes[i], i_bit, K) == pref0) {
-            i_node_end = i;
-        } else {
-            break;
-        }
-    }
-    if (i_node_end == -1) {
-        printf("i_node_end shouldn't be -1");
-    }
-
-    // int l, r;
-
-    // // Мы левая, ищем правую
-    // if (dir == 1) {
-    //     l = i_node;
-    //     r = N;
-    // } else {// Мы правая, ищем левую
-    //     l = -1;
-    //     r = i_node;
-    // }
-
-    // while (r - l > 1) {
-    //     int m = (l + r) / 2;
-    //     if (getBits(codes[m], i_bit, K) == pref0) {
-    //         if (dir == 1) {
-    //             l = m;
-    //         } else {
-    //             r = m;
-    //         }
+    // for (int i = i_node; i >= 0 && i < N; i += dir) {
+    //     if (getBits(codes[i], i_bit, K) == pref0) {
+    //         i_node_end = i;
     //     } else {
-    //         if (dir == 1) {
-    //             r = m;
-    //         } else {
-    //             l = m;
-    //         }
+    //         break;
     //     }
     // }
+    // if (i_node_end == -1) {
+    //     printf("i_node_end shouldn't be -1");
+    // }
 
-    // i_node_end = (dir == 1) ? l : r;
+    // Мы левая, ищем правую
+    if (dir == 1) {
+        int l = i_node;
+        int r = N;
+        
+        while (r - l > 1) {
+            int m = (l + r) / 2;
+            if (getBits(codes[m], i_bit, K) == pref0) {
+                l = m;
+            } else {
+                r = m;
+            }
+        }
+
+        i_node_end = l;
+    } 
+    else { // Мы правая, ищем левую
+        int l = -1;
+        int r = i_node;
+
+        while (r - l > 1) {
+            int m = (l + r) / 2;
+            if (getBits(codes[m], i_bit, K) == pref0) {
+                r = m;
+            } else {
+                l = m;
+            }
+        }
+
+        i_node_end = r;
+    }
 
     *bit_index = i_bit - 1;
 
